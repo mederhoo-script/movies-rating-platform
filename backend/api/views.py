@@ -73,5 +73,50 @@ class UserLoginView(APIView):
         })
 
 
+class MovieListCreateView(generics.ListCreateAPIView):
+    """
+    List all movies or create a new movie
+    """
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'description', 'genre', 'director']
+    ordering_fields = ['created_at', 'release_year', 'title']
+    ordering = ['-created_at']
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class MovieDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete a movie
+    """
+    queryset = Movie.objects.all()
+    serializer_class = MovieDetailSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
+    def perform_update(self, serializer):
+        # Only the creator can update
+        if serializer.instance.created_by != self.request.user:
+            raise permissions.PermissionDenied("You can only update your own movies")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Only the creator can delete
+        if instance.created_by != self.request.user:
+            raise permissions.PermissionDenied("You can only delete your own movies")
+        instance.delete()
+
+
 
 
