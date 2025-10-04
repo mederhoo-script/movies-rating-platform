@@ -118,5 +118,42 @@ class MovieDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance.delete()
 
 
+class MovieRatingListCreateView(APIView):
+    """
+    List all ratings for a movie or create/update a rating
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get(self, request, movie_id):
+        movie = get_object_or_404(Movie, pk=movie_id)
+        ratings = Rating.objects.filter(movie=movie)
+        serializer = RatingSerializer(ratings, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, movie_id):
+        movie = get_object_or_404(Movie, pk=movie_id)
+
+        # Check if user already rated this movie
+        rating, created = Rating.objects.get_or_create(
+            movie=movie,
+            user=request.user,
+            defaults={
+                'score': request.data.get('score'),
+                'comment': request.data.get('comment', '')
+            }
+        )
+
+        if not created:
+            # Update existing rating
+            serializer = RatingSerializer(rating, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            # Validate and return new rating
+            serializer = RatingSerializer(rating)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 
 
