@@ -31,4 +31,18 @@ class Movie(models.Model):
         return self.ratings.count()
 
 
+class Rating(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
+    score = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['movie', 'user']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.movie.title}: {self.score}"
 
