@@ -566,10 +566,7 @@ This provides a better user experience than requiring separate endpoints.
    ```
 
 2. **Deploy Options**
-   - Netlify (easiest)
-   - Vercel
-   - AWS S3 + CloudFront
-   - nginx static hosting
+   - as you wish
 
 3. **Environment Variables**
    - Update REACT_APP_API_URL to production API
