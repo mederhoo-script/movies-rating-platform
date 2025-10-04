@@ -155,5 +155,14 @@ class MovieRatingListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class UserRatingsView(generics.ListAPIView):
+    """
+    List all ratings by a specific user
+    """
+    serializer_class = RatingSerializer
+    permission_classes = [permissions.AllowAny]
 
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Rating.objects.filter(user_id=user_id)
 
