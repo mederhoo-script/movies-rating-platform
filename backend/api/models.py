@@ -12,6 +12,18 @@ class Movie(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='movies')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # IMDB and extended fields (all optional)
+    imdb_id = models.CharField(max_length=20, blank=True, null=True, help_text="IMDB ID (e.g., tt1234567)")
+    imdb_rank = models.FloatField(blank=True, null=True, help_text="IMDB ranking")
+    actors = models.TextField(blank=True, null=True, help_text="Comma-separated list of actors")
+    aka = models.CharField(max_length=500, blank=True, null=True, help_text="Also Known As (alternative titles)")
+    imdb_url = models.URLField(blank=True, null=True, help_text="IMDB URL")
+    imdb_iv = models.CharField(max_length=50, blank=True, null=True, help_text="IMDB IV identifier")
+    poster_url = models.URLField(blank=True, null=True, help_text="External poster image URL")
+    poster_image = models.ImageField(upload_to='posters/', blank=True, null=True, help_text="Uploaded poster image")
+    photo_width = models.IntegerField(blank=True, null=True, help_text="Poster image width in pixels")
+    photo_height = models.IntegerField(blank=True, null=True, help_text="Poster image height in pixels")
 
     class Meta:
         ordering = ['-created_at']

@@ -52,7 +52,9 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ('id', 'title', 'description', 'release_year', 'genre', 'director',
-                  'created_by', 'average_rating', 'ratings_count', 'created_at', 'updated_at')
+                  'created_by', 'average_rating', 'ratings_count', 'created_at', 'updated_at',
+                  'imdb_id', 'imdb_rank', 'actors', 'aka', 'imdb_url', 'imdb_iv',
+                  'poster_url', 'poster_image', 'photo_width', 'photo_height')
         read_only_fields = ('id', 'created_by', 'created_at', 'updated_at')
 
 
@@ -65,5 +67,7 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ('id', 'title', 'description', 'release_year', 'genre', 'director',
-                  'created_by', 'average_rating', 'ratings_count', 'ratings', 'created_at', 'updated_at')
+                  'created_by', 'average_rating', 'ratings_count', 'ratings', 'created_at', 'updated_at',
+                  'imdb_id', 'imdb_rank', 'actors', 'aka', 'imdb_url', 'imdb_iv',
+                  'poster_url', 'poster_image', 'photo_width', 'photo_height')
         read_only_fields = ('id', 'created_by', 'created_at', 'updated_at')

@@ -33,7 +33,33 @@ export const authService = {
 export const movieService = {
   getMovies: (params) => api.get('/movies/', { params }),
   getMovie: (id) => api.get(`/movies/${id}/`),
-  createMovie: (movieData) => api.post('/movies/', movieData),
+  createMovie: (movieData) => {
+    // Check if movieData contains a file (for image upload)
+    const hasFile = movieData instanceof FormData || 
+                    (movieData.poster_image && movieData.poster_image instanceof File);
+    
+    if (hasFile) {
+      // If it's already FormData, use it; otherwise, convert to FormData
+      const formData = movieData instanceof FormData ? movieData : new FormData();
+      
+      if (!(movieData instanceof FormData)) {
+        // Convert regular object to FormData
+        Object.keys(movieData).forEach(key => {
+          if (movieData[key] !== null && movieData[key] !== undefined && movieData[key] !== '') {
+            formData.append(key, movieData[key]);
+          }
+        });
+      }
+      
+      return api.post('/movies/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    }
+    
+    return api.post('/movies/', movieData);
+  },
   updateMovie: (id, movieData) => api.put(`/movies/${id}/`, movieData),
   deleteMovie: (id) => api.delete(`/movies/${id}/`),
 };

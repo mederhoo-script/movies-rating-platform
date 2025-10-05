@@ -21,6 +21,7 @@ const MovieDetail = () => {
 
   useEffect(() => {
     fetchMovieDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchMovieDetail = async () => {
@@ -96,6 +97,18 @@ const MovieDetail = () => {
       <div className="movie-detail">
         <h1>{movie.title}</h1>
         
+        {/* Display poster image if available */}
+        {(movie.poster_image || movie.poster_url) && (
+          <img 
+            src={movie.poster_image || movie.poster_url}
+            alt={`${movie.title} poster`}
+            className="movie-poster"
+            style={movie.photo_width && movie.photo_height ? {
+              aspectRatio: `${movie.photo_width} / ${movie.photo_height}`
+            } : {}}
+          />
+        )}
+        
         <div className="movie-meta">
           <span className="meta-item">
             <strong>Release Year:</strong> {movie.release_year}
@@ -106,7 +119,28 @@ const MovieDetail = () => {
           <span className="meta-item">
             <strong>Director:</strong> {movie.director}
           </span>
+          {movie.imdb_rank && (
+            <span className="meta-item">
+              <strong>IMDB Rating:</strong> ⭐ {movie.imdb_rank}
+            </span>
+          )}
         </div>
+
+        {movie.actors && (
+          <div className="movie-info">
+            <p>
+              <strong>Actors:</strong> {movie.actors}
+            </p>
+          </div>
+        )}
+
+        {movie.aka && (
+          <div className="movie-info">
+            <p>
+              <strong>Also Known As:</strong> {movie.aka}
+            </p>
+          </div>
+        )}
 
         <div className="movie-rating-summary">
           <span className="rating-score">
@@ -126,6 +160,21 @@ const MovieDetail = () => {
           <p>
             <strong>Added by:</strong> {movie.created_by.username}
           </p>
+          {movie.imdb_id && (
+            <p>
+              <strong>IMDB ID:</strong> {movie.imdb_id}
+            </p>
+          )}
+          {movie.imdb_url && (
+            <p>
+              <strong>IMDB:</strong> <a href={movie.imdb_url} target="_blank" rel="noopener noreferrer">View on IMDB</a>
+            </p>
+          )}
+          {movie.imdb_iv && (
+            <p>
+              <strong>IMDB IV:</strong> {movie.imdb_iv}
+            </p>
+          )}
         </div>
       </div>
 

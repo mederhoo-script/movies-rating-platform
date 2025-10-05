@@ -1,8 +1,11 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from .models import Movie, Rating
+from PIL import Image
+import io
 
 
 class UserAuthenticationTestCase(APITestCase):
@@ -125,6 +128,50 @@ class MovieTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'Test Movie')
 
+    def test_create_movie_with_imdb_fields(self):
+        """Test creating a movie with optional IMDB fields"""
+        self.client.force_authenticate(user=self.user)
+        data = {
+            'title': 'Test Movie with IMDB',
+            'description': 'A test movie with IMDB data',
+            'release_year': 2023,
+            'genre': 'Action',
+            'director': 'Test Director',
+            'imdb_id': 'tt1234567',
+            'imdb_rank': 8.5,
+            'actors': 'Actor 1, Actor 2, Actor 3',
+            'aka': 'Alternative Title',
+            'imdb_url': 'https://www.imdb.com/title/tt1234567/',
+            'poster_url': 'https://example.com/poster.jpg',
+            'photo_width': 300,
+            'photo_height': 450
+        }
+        response = self.client.post(self.movies_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], 'Test Movie with IMDB')
+        self.assertEqual(response.data['imdb_id'], 'tt1234567')
+        self.assertEqual(response.data['imdb_rank'], 8.5)
+        self.assertEqual(response.data['actors'], 'Actor 1, Actor 2, Actor 3')
+        self.assertEqual(response.data['poster_url'], 'https://example.com/poster.jpg')
+
+    def test_create_movie_without_optional_fields(self):
+        """Test creating a movie without optional fields still works"""
+        self.client.force_authenticate(user=self.user)
+        data = {
+            'title': 'Test Movie Basic',
+            'description': 'A basic test movie',
+            'release_year': 2023,
+            'genre': 'Drama',
+            'director': 'Test Director'
+        }
+        response = self.client.post(self.movies_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], 'Test Movie Basic')
+        # Check that optional fields are null/None
+        self.assertIsNone(response.data.get('imdb_id'))
+        self.assertIsNone(response.data.get('imdb_rank'))
+        self.assertIsNone(response.data.get('actors'))
+
 
 class RatingTestCase(APITestCase):
     """Test rating operations"""
@@ -223,4 +270,44 @@ class RatingTestCase(APITestCase):
             self.assertEqual(len(response.data['results']), 1)
         else:
             self.assertEqual(len(response.data), 1)
+
+
+class MovieImageUploadTestCase(APITestCase):
+    """Test movie poster image upload"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.movies_url = '/api/movies/'
+        
+    def create_test_image(self):
+        """Create a simple test image"""
+        file = io.BytesIO()
+        image = Image.new('RGB', (100, 100), color='red')
+        image.save(file, 'PNG')
+        file.seek(0)
+        return SimpleUploadedFile("test_poster.png", file.read(), content_type="image/png")
+
+    def test_create_movie_with_image_upload(self):
+        """Test creating a movie with an uploaded poster image"""
+        self.client.force_authenticate(user=self.user)
+        
+        image = self.create_test_image()
+        
+        data = {
+            'title': 'Test Movie with Image',
+            'description': 'A test movie with uploaded image',
+            'release_year': 2023,
+            'genre': 'Action',
+            'director': 'Test Director',
+            'poster_image': image,
+            'photo_width': 100,
+            'photo_height': 100
+        }
+        
+        response = self.client.post(self.movies_url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], 'Test Movie with Image')
+        self.assertIsNotNone(response.data.get('poster_image'))
+        self.assertTrue('posters/' in response.data['poster_image'])
 

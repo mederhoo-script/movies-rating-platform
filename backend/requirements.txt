@@ -3,3 +3,4 @@ django-cors-headers
 djangorestframework
 djangorestframework_simplejwt
 drf-yasg
+Pillow
