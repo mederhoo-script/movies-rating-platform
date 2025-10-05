@@ -197,7 +197,58 @@ const AddMovie = () => {
                 />
               </div>
 
+              <div className="form-group">
+                <label htmlFor="imdb_rank">IMDB Rating</label>
+                <input
+                  type="number"
+                  id="imdb_rank"
+                  name="imdb_rank"
+                  value={formData.imdb_rank}
+                  onChange={handleChange}
+                  placeholder="e.g., 8.5"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                />
+              </div>
+            </div>
 
+            <div className="form-group">
+              <label htmlFor="imdb_url">IMDB URL</label>
+              <input
+                type="url"
+                id="imdb_url"
+                name="imdb_url"
+                value={formData.imdb_url}
+                onChange={handleChange}
+                placeholder="https://www.imdb.com/title/tt1234567/"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="aka">Alternative Titles (AKA)</label>
+              <input
+                type="text"
+                id="aka"
+                name="aka"
+                value={formData.aka}
+                onChange={handleChange}
+                placeholder="Alternative or foreign language titles"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="imdb_iv">IMDB IV</label>
+              <input
+                type="text"
+                id="imdb_iv"
+                name="imdb_iv"
+                value={formData.imdb_iv}
+                onChange={handleChange}
+                placeholder="IMDB IV identifier"
+              />
+            </div>
+          </div>
 
           <div className="form-section">
             <h3>Poster Image (Optional)</h3>
